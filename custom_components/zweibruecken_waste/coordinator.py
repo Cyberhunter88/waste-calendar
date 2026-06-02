@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .calendar import WasteCollection, parse_ics_collections
+from .calendar import WasteCalendarData, parse_ics_calendar_data
 from .const import (
     CONF_ICS_URL,
     CONF_SCAN_INTERVAL_HOURS,
@@ -24,7 +24,7 @@ from .url import is_inline_ics, normalize_ics_source
 _LOGGER = logging.getLogger(__name__)
 
 
-class ZweibrueckenWasteCoordinator(DataUpdateCoordinator[dict[str, WasteCollection | None]]):
+class ZweibrueckenWasteCoordinator(DataUpdateCoordinator[WasteCalendarData]):
     """Fetch and parse waste collection appointments from an ICS feed."""
 
     config_entry: ConfigEntry
@@ -45,12 +45,12 @@ class ZweibrueckenWasteCoordinator(DataUpdateCoordinator[dict[str, WasteCollecti
         )
         self._ics_source = normalize_ics_source(entry.data[CONF_ICS_URL])
 
-    async def _async_update_data(self) -> dict[str, WasteCollection | None]:
+    async def _async_update_data(self) -> WasteCalendarData:
         """Fetch data from the configured calendar."""
 
         if is_inline_ics(self._ics_source):
             try:
-                return parse_ics_collections(self._ics_source)
+                return parse_ics_calendar_data(self._ics_source)
             except ValueError as err:
                 raise UpdateFailed("ICS feed could not be parsed") from err
 
@@ -66,6 +66,6 @@ class ZweibrueckenWasteCoordinator(DataUpdateCoordinator[dict[str, WasteCollecti
             raise UpdateFailed("Could not fetch the ICS feed") from err
 
         try:
-            return parse_ics_collections(ics_text)
+            return parse_ics_calendar_data(ics_text)
         except ValueError as err:
             raise UpdateFailed("ICS feed could not be parsed") from err

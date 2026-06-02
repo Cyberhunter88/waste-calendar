@@ -6,6 +6,8 @@ from datetime import date
 
 from custom_components.zweibruecken_waste.calendar import (
     classify_waste_type,
+    format_collection_date,
+    parse_ics_calendar_data,
     parse_ics_collections,
 )
 from custom_components.zweibruecken_waste.const import (
@@ -63,6 +65,20 @@ def test_parse_ics_collections_returns_next_collection_per_waste_type() -> None:
     assert result[WASTE_RESIDUAL].collection_date == date(2026, 6, 6)
 
 
+def test_parse_ics_calendar_data_returns_all_upcoming_events() -> None:
+    """Calendar data should include every supported upcoming waste event."""
+
+    result = parse_ics_calendar_data(SAMPLE_ICS, today=date(2026, 6, 2))
+
+    assert [event.collection_date for event in result.events] == [
+        date(2026, 6, 3),
+        date(2026, 6, 4),
+        date(2026, 6, 5),
+        date(2026, 6, 6),
+    ]
+    assert result.next_by_type[WASTE_PAPER].collection_date == date(2026, 6, 4)
+
+
 def test_classify_waste_type_handles_common_names() -> None:
     """Common waste names should map to stable internal types."""
 
@@ -70,6 +86,12 @@ def test_classify_waste_type_handles_common_names() -> None:
     assert classify_waste_type("Altpapier") == WASTE_PAPER
     assert classify_waste_type("Gelber Sack") == WASTE_YELLOW
     assert classify_waste_type("Schwarze Tonne") == WASTE_RESIDUAL
+
+
+def test_format_collection_date_uses_german_order() -> None:
+    """Display dates should be day-month-year for German users."""
+
+    assert format_collection_date(date(2026, 6, 17)) == "17.06.2026"
 
 
 def test_parse_ics_rejects_non_calendar_text() -> None:

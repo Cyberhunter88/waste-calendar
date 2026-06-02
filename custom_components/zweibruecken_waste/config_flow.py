@@ -15,6 +15,7 @@ from homeassistant.helpers import selector
 
 from .calendar import parse_ics_collections
 from .const import (
+    CONF_ENABLE_CALENDAR,
     CONF_ICS_URL,
     CONF_SCAN_INTERVAL_HOURS,
     DEFAULT_NAME,
@@ -35,6 +36,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
             CONF_SCAN_INTERVAL_HOURS,
             default=DEFAULT_SCAN_INTERVAL_HOURS,
         ): vol.All(vol.Coerce(int), vol.Range(min=MIN_SCAN_INTERVAL_HOURS)),
+        vol.Optional(CONF_ENABLE_CALENDAR, default=True): selector.BooleanSelector(),
     }
 )
 
@@ -132,12 +134,20 @@ class ZweibrueckenWasteOptionsFlow(config_entries.OptionsFlow):
             CONF_SCAN_INTERVAL_HOURS,
             self._config_entry.data.get(CONF_SCAN_INTERVAL_HOURS, DEFAULT_SCAN_INTERVAL_HOURS),
         )
+        enable_calendar = self._config_entry.options.get(
+            CONF_ENABLE_CALENDAR,
+            self._config_entry.data.get(CONF_ENABLE_CALENDAR, False),
+        )
         schema = vol.Schema(
             {
                 vol.Optional(
                     CONF_SCAN_INTERVAL_HOURS,
                     default=scan_interval,
                 ): vol.All(vol.Coerce(int), vol.Range(min=MIN_SCAN_INTERVAL_HOURS)),
+                vol.Optional(
+                    CONF_ENABLE_CALENDAR,
+                    default=enable_calendar,
+                ): selector.BooleanSelector(),
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)

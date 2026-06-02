@@ -3,9 +3,9 @@
   "name": "Waste Calendar",
   "codeowners": [],
   "config_flow": true,
-  "documentation": "https://github.com/Cyberhunter88/zweibruecken_waste",
+  "documentation": "https://github.com/Cyberhunter88/waste-calendar",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/Cyberhunter88/zweibruecken_waste/issues",
+  "issue_tracker": "https://github.com/Cyberhunter88/waste-calendar/issues",
   "requirements": [],
-  "version": "0.1.6"
+  "version": "0.1.7"
 }

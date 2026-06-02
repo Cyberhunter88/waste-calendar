@@ -4,14 +4,26 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .const import DOMAIN
+from .const import CONF_ENABLE_CALENDAR, DOMAIN
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
 
 
-PLATFORMS = ["sensor"]
+DEFAULT_PLATFORMS = ["sensor"]
+
+
+def _platforms_for_entry(entry: ConfigEntry) -> list[str]:
+    """Return platforms enabled for a config entry."""
+
+    platforms = list(DEFAULT_PLATFORMS)
+    if entry.options.get(
+        CONF_ENABLE_CALENDAR,
+        entry.data.get(CONF_ENABLE_CALENDAR, False),
+    ):
+        platforms.append("calendar")
+    return platforms
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -23,7 +35,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, _platforms_for_entry(entry))
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     return True
 
@@ -31,7 +43,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
 
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, _platforms_for_entry(entry))
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
     return unload_ok

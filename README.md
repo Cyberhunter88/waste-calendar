@@ -9,6 +9,7 @@ Abholtermine.
 - Einrichtung ueber die Home-Assistant-UI
 - Installation ueber HACS als benutzerdefiniertes Repository
 - Sensoren fuer `Bioabfall`, `Papier`, `Gelbe Tonne` und `Restmuell`
+- Optionaler Home-Assistant-Kalender mit den kommenden Abfallterminen
 - Attribute fuer Tage bis zur Abholung, Heute/Morgen-Status, Originaltermin und Quelle
 - Keine PDF-Auswertung und kein Web-Scraping, nur der ICS/iCal-Export
 
@@ -16,7 +17,7 @@ Abholtermine.
 
 ### HACS (empfohlen)
 
-[![Open your Home Assistant instance and open a repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Cyberhunter88&repository=zweibruecken_waste&category=integration)
+[![Open your Home Assistant instance and open a repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Cyberhunter88&repository=waste-calendar&category=integration)
 
 <details>
 <summary>Alternative zum Button</summary>
@@ -24,7 +25,7 @@ Abholtermine.
 1. In Home Assistant HACS oeffnen.
 2. Rechts oben auf die drei Punkte klicken und `Benutzerdefinierte Repositories` waehlen.
 3. Die GitHub-Repository-URL einfuegen:
-   `https://github.com/Cyberhunter88/zweibruecken_waste`
+   `https://github.com/Cyberhunter88/waste-calendar`
 4. Als Kategorie `Integration` auswaehlen.
 5. `Waste Calendar` installieren.
 6. Home Assistant neu starten.
@@ -73,22 +74,27 @@ Falls sich der Link nicht kopieren laesst:
 Optional kann das Aktualisierungsintervall angepasst werden. Standard ist alle
 12 Stunden.
 
+Optional kann beim Einrichten oder spaeter in den Integrationsoptionen ein
+Home-Assistant-Kalender aktiviert werden. Dieser Kalender zeigt die passenden
+Abfalltermine aus der ICS-Datei als ganztägige Termine an.
+
 ## Erstellte Sensoren
 
-Die Integration legt vier Datumssensoren an:
+Die Integration legt vier Sensoren an:
 
 - `sensor.bioabfall`
 - `sensor.papier`
 - `sensor.gelbe_tonne`
 - `sensor.restmuell`
+- `calendar.abfalltermine`, wenn die Kalenderoption aktiviert ist
 
-Jeder Sensor zeigt als Status das naechste bekannte Abholdatum. Zusaetzlich
-werden diese Attribute gesetzt:
+Jeder Sensor zeigt als Status das naechste bekannte Abholdatum im deutschen
+Format, zum Beispiel `17.06.2026`. Zusaetzlich werden diese Attribute gesetzt:
 
 - `days_until`
 - `is_today`
 - `is_tomorrow`
-- `next_collection`
+- `next_collection` als technisches ISO-Datum, zum Beispiel `2026-06-17`
 - `summary`
 - `waste_type`
 - `source`

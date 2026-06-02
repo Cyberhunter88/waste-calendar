@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -26,6 +26,7 @@ from .const import (
     WASTE_TYPE_NAMES,
     WASTE_TYPES,
 )
+from .calendar import format_collection_date
 from .coordinator import ZweibrueckenWasteCoordinator
 from .url import source_display_name
 
@@ -47,7 +48,6 @@ async def async_setup_entry(
 class ZweibrueckenWasteSensor(CoordinatorEntity[ZweibrueckenWasteCoordinator], SensorEntity):
     """Sensor for one waste collection type."""
 
-    _attr_device_class = SensorDeviceClass.DATE
     _attr_has_entity_name = True
 
     def __init__(
@@ -70,13 +70,13 @@ class ZweibrueckenWasteSensor(CoordinatorEntity[ZweibrueckenWasteCoordinator], S
         self._attr_suggested_object_id = WASTE_TYPE_ENTITY_IDS[waste_type]
 
     @property
-    def native_value(self) -> date | None:
-        """Return the next collection date."""
+    def native_value(self) -> str | None:
+        """Return the next collection date as a German display string."""
 
-        collection = self.coordinator.data.get(self._waste_type)
+        collection = self.coordinator.data.next_by_type.get(self._waste_type)
         if collection is None:
             return None
-        return collection.collection_date
+        return format_collection_date(collection.collection_date)
 
     @property
     def available(self) -> bool:
@@ -88,7 +88,7 @@ class ZweibrueckenWasteSensor(CoordinatorEntity[ZweibrueckenWasteCoordinator], S
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return extra attributes for dashboard cards and automations."""
 
-        collection = self.coordinator.data.get(self._waste_type)
+        collection = self.coordinator.data.next_by_type.get(self._waste_type)
         attrs: dict[str, Any] = {
             ATTR_WASTE_TYPE: WASTE_TYPE_NAMES[self._waste_type],
             ATTR_SOURCE: source_display_name(self._entry.data[CONF_ICS_URL]),

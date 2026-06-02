@@ -13,6 +13,7 @@ DEFAULT_SCAN_INTERVAL = timedelta(hours=DEFAULT_SCAN_INTERVAL_HOURS)
 
 CONF_ICS_URL = "ics_url"
 CONF_SCAN_INTERVAL_HOURS = "scan_interval_hours"
+CONF_ENABLE_CALENDAR = "enable_calendar"
 
 ATTR_DAYS_UNTIL = "days_until"
 ATTR_IS_TODAY = "is_today"

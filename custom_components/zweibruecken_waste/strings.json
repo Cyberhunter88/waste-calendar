@@ -7,7 +7,8 @@
         "data": {
           "ics_url": "ICS/iCal-URL oder Dateiinhalt",
           "name": "Name",
-          "scan_interval_hours": "Aktualisierung alle x Stunden"
+          "scan_interval_hours": "Aktualisierung alle x Stunden",
+          "enable_calendar": "Kalender mit Abfallterminen erstellen"
         }
       }
     },
@@ -24,7 +25,8 @@
       "init": {
         "title": "Optionen",
         "data": {
-          "scan_interval_hours": "Aktualisierung alle x Stunden"
+          "scan_interval_hours": "Aktualisierung alle x Stunden",
+          "enable_calendar": "Kalender mit Abfallterminen erstellen"
         }
       }
     }
