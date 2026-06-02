@@ -3,9 +3,9 @@
     "step": {
       "user": {
         "title": "Zweibruecken Muellkalender",
-        "description": "Gib die ICS/iCal-URL aus dem UBZ-Online-Abfallkalender ein.",
+        "description": "Gib die ICS/iCal-URL aus dem UBZ-Online-Abfallkalender ein. Falls du den Link nicht kopieren kannst, lade die .ics-Datei herunter, oeffne sie in einem Texteditor und fuege den kompletten Dateiinhalt hier ein.",
         "data": {
-          "ics_url": "ICS/iCal-URL",
+          "ics_url": "ICS/iCal-URL oder Dateiinhalt",
           "name": "Name",
           "scan_interval_hours": "Aktualisierung alle x Stunden"
         }

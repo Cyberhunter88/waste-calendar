@@ -19,7 +19,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL_HOURS,
     DOMAIN,
 )
-from .url import normalize_ics_url
+from .url import is_inline_ics, normalize_ics_source
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,14 +43,20 @@ class ZweibrueckenWasteCoordinator(DataUpdateCoordinator[dict[str, WasteCollecti
             update_interval=timedelta(hours=interval_hours),
             config_entry=entry,
         )
-        self._ics_url = normalize_ics_url(entry.data[CONF_ICS_URL])
+        self._ics_source = normalize_ics_source(entry.data[CONF_ICS_URL])
 
     async def _async_update_data(self) -> dict[str, WasteCollection | None]:
         """Fetch data from the configured calendar."""
 
+        if is_inline_ics(self._ics_source):
+            try:
+                return parse_ics_collections(self._ics_source)
+            except ValueError as err:
+                raise UpdateFailed("ICS feed could not be parsed") from err
+
         session = async_get_clientsession(self.hass)
         try:
-            async with session.get(self._ics_url, timeout=30) as response:
+            async with session.get(self._ics_source, timeout=30) as response:
                 if response.status >= 400:
                     raise UpdateFailed(f"ICS feed returned HTTP {response.status}")
                 ics_text = await response.text()

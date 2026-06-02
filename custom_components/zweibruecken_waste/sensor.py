@@ -27,6 +27,7 @@ from .const import (
     WASTE_TYPES,
 )
 from .coordinator import ZweibrueckenWasteCoordinator
+from .url import source_display_name
 
 
 async def async_setup_entry(
@@ -90,7 +91,7 @@ class ZweibrueckenWasteSensor(CoordinatorEntity[ZweibrueckenWasteCoordinator], S
         collection = self.coordinator.data.get(self._waste_type)
         attrs: dict[str, Any] = {
             ATTR_WASTE_TYPE: WASTE_TYPE_NAMES[self._waste_type],
-            ATTR_SOURCE: self._entry.data[CONF_ICS_URL],
+            ATTR_SOURCE: source_display_name(self._entry.data[CONF_ICS_URL]),
         }
         if collection is None:
             attrs.update(

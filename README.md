@@ -63,6 +63,13 @@ Abholtermine.
 Hinweis: Manche Browser kopieren Kalenderlinks als `webcal://...`. Die
 Integration wandelt diese Adresse automatisch in `https://...` um.
 
+Falls sich der Link nicht kopieren laesst:
+
+1. Den Link `Diese Leerungstermine in einer ical-Kalenderdatei` anklicken.
+2. Die heruntergeladene `.ics`-Datei mit einem Texteditor oeffnen.
+3. Den kompletten Inhalt markieren und kopieren.
+4. Diesen Inhalt in das Feld `ICS/iCal-URL oder Dateiinhalt` einfuegen.
+
 Optional kann das Aktualisierungsintervall angepasst werden. Standard ist alle
 12 Stunden.
 

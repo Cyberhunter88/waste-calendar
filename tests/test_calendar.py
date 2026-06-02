@@ -14,7 +14,12 @@ from custom_components.zweibruecken_waste.const import (
     WASTE_RESIDUAL,
     WASTE_YELLOW,
 )
-from custom_components.zweibruecken_waste.url import normalize_ics_url
+from custom_components.zweibruecken_waste.url import (
+    normalize_ics_source,
+    normalize_ics_url,
+    source_display_name,
+    source_unique_id,
+)
 
 
 SAMPLE_ICS = """BEGIN:VCALENDAR
@@ -84,3 +89,12 @@ def test_normalize_ics_url_accepts_webcal_links() -> None:
     assert normalize_ics_url("webcal://example.com/calendar.ics") == (
         "https://example.com/calendar.ics"
     )
+
+
+def test_inline_ics_sources_get_stable_ids_and_compact_display_names() -> None:
+    """Inline ICS text should not be exposed as a long sensor source value."""
+
+    inline_source = normalize_ics_source(f"  {SAMPLE_ICS}  ")
+
+    assert source_display_name(inline_source) == "Inline ICS calendar"
+    assert source_unique_id(inline_source).startswith("inline_ics_")
