@@ -12,16 +12,42 @@ Abholtermine.
 - Attribute fuer Tage bis zur Abholung, Heute/Morgen-Status, Originaltermin und Quelle
 - Keine PDF-Auswertung und kein Web-Scraping, nur der ICS/iCal-Export
 
-## HACS Installation
+## Installation
 
-1. Dieses Repository zu GitHub hochladen.
-2. In Home Assistant HACS oeffnen.
-3. Rechts oben auf die drei Punkte klicken und `Benutzerdefinierte Repositories` waehlen.
-4. Die GitHub-Repository-URL einfuegen.
-5. Als Kategorie `Integration` auswaehlen.
-6. `Zweibruecken Waste Calendar` installieren.
-7. Home Assistant neu starten.
-8. Unter `Einstellungen > Geraete & Dienste > Integration hinzufuegen` nach `Zweibruecken Waste Calendar` suchen.
+### HACS (empfohlen)
+
+[![Open your Home Assistant instance and open a repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Cyberhunter88&repository=zweibruecken_waste&category=integration)
+
+<details>
+<summary>Alternative zum Button</summary>
+
+1. In Home Assistant HACS oeffnen.
+2. Rechts oben auf die drei Punkte klicken und `Benutzerdefinierte Repositories` waehlen.
+3. Die GitHub-Repository-URL einfuegen:
+   `https://github.com/Cyberhunter88/zweibruecken_waste`
+4. Als Kategorie `Integration` auswaehlen.
+5. `Zweibruecken Waste Calendar` installieren.
+6. Home Assistant neu starten.
+7. Unter `Einstellungen > Geraete & Dienste > Integration hinzufuegen` nach `Zweibruecken Waste Calendar` suchen.
+
+</details>
+
+### Manuelle Installation
+
+<details>
+<summary>Manuelle Installationsschritte</summary>
+
+1. Dieses Repository herunterladen.
+2. Den Ordner `custom_components/zweibruecken_waste` in den `custom_components`-Ordner der Home-Assistant-Installation kopieren.
+3. Home Assistant neu starten.
+4. Unter `Einstellungen > Geraete & Dienste > Integration hinzufuegen` nach `Zweibruecken Waste Calendar` suchen.
+
+</details>
+
+## Voraussetzungen
+
+- Home Assistant mit Zugriff auf den Ordner `custom_components`
+- Eine ICS/iCal-URL aus dem UBZ-Abfallkalender
 
 ## Konfiguration
 
