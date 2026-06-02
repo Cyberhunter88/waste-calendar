@@ -1,0 +1,32 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zweibruecken Muellkalender",
+        "description": "Gib die ICS/iCal-URL aus dem UBZ-Online-Abfallkalender ein.",
+        "data": {
+          "ics_url": "ICS/iCal-URL",
+          "name": "Name",
+          "scan_interval_hours": "Aktualisierung alle x Stunden"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Die ICS/iCal-URL konnte nicht abgerufen werden.",
+      "invalid_calendar": "Die Antwort ist kein lesbarer ICS/iCal-Kalender."
+    },
+    "abort": {
+      "already_configured": "Diese ICS/iCal-URL ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Optionen",
+        "data": {
+          "scan_interval_hours": "Aktualisierung alle x Stunden"
+        }
+      }
+    }
+  }
+}

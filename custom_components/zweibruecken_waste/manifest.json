@@ -1,0 +1,11 @@
+{
+  "domain": "zweibruecken_waste",
+  "name": "Zweibruecken Waste Calendar",
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://github.com/dein-benutzername/zweibruecken_waste",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/dein-benutzername/zweibruecken_waste/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
