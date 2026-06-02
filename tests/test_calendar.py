@@ -7,6 +7,7 @@ from datetime import date
 from custom_components.zweibruecken_waste.calendar import (
     classify_waste_type,
     format_collection_date,
+    format_collection_state,
     parse_ics_calendar_data,
     parse_ics_collections,
 )
@@ -92,6 +93,24 @@ def test_format_collection_date_uses_german_order() -> None:
     """Display dates should be day-month-year for German users."""
 
     assert format_collection_date(date(2026, 6, 17)) == "17.06.2026"
+
+
+def test_format_collection_state_shows_tomorrow_for_next_day() -> None:
+    """The visible sensor state should call out tomorrow's collection."""
+
+    assert format_collection_state(date(2026, 6, 3), today=date(2026, 6, 2)) == "Morgen"
+
+
+def test_format_collection_state_keeps_date_for_today() -> None:
+    """Today's collection should keep the existing date display."""
+
+    assert format_collection_state(date(2026, 6, 2), today=date(2026, 6, 2)) == "02.06.2026"
+
+
+def test_format_collection_state_keeps_date_for_later_collections() -> None:
+    """Later collections should keep the existing date display."""
+
+    assert format_collection_state(date(2026, 6, 17), today=date(2026, 6, 2)) == "17.06.2026"
 
 
 def test_parse_ics_rejects_non_calendar_text() -> None:

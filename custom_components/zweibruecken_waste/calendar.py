@@ -38,6 +38,15 @@ def format_collection_date(collection_date: date) -> str:
     return collection_date.strftime("%d.%m.%Y")
 
 
+def format_collection_state(collection_date: date, today: date | None = None) -> str:
+    """Return the sensor state shown in Home Assistant tiles."""
+
+    today = today or date.today()
+    if (collection_date - today).days == 1:
+        return "Morgen"
+    return format_collection_date(collection_date)
+
+
 def parse_ics_calendar_data(ics_text: str, today: date | None = None) -> WasteCalendarData:
     """Return all upcoming collection events and the next collection per type."""
 

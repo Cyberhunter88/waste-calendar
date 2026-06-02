@@ -89,7 +89,9 @@ Die Integration legt vier Sensoren an:
 - `calendar.abfalltermine`, wenn die Kalenderoption aktiviert ist
 
 Jeder Sensor zeigt als Status das naechste bekannte Abholdatum im deutschen
-Format, zum Beispiel `17.06.2026`. Zusaetzlich werden diese Attribute gesetzt:
+Format, zum Beispiel `17.06.2026`. Wenn die Abholung am naechsten Tag
+stattfindet, zeigt der Status `Morgen`. Zusaetzlich werden diese Attribute
+gesetzt:
 
 - `days_until`
 - `is_today`

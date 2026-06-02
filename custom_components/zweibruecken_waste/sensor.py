@@ -26,7 +26,7 @@ from .const import (
     WASTE_TYPE_NAMES,
     WASTE_TYPES,
 )
-from .calendar import format_collection_date
+from .calendar import format_collection_state
 from .coordinator import ZweibrueckenWasteCoordinator
 from .url import source_display_name
 
@@ -71,12 +71,12 @@ class ZweibrueckenWasteSensor(CoordinatorEntity[ZweibrueckenWasteCoordinator], S
 
     @property
     def native_value(self) -> str | None:
-        """Return the next collection date as a German display string."""
+        """Return the next collection state for Home Assistant tiles."""
 
         collection = self.coordinator.data.next_by_type.get(self._waste_type)
         if collection is None:
             return None
-        return format_collection_date(collection.collection_date)
+        return format_collection_state(collection.collection_date)
 
     @property
     def available(self) -> bool:
