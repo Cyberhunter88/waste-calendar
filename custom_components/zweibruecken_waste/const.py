@@ -6,7 +6,7 @@ from datetime import timedelta
 
 DOMAIN = "zweibruecken_waste"
 
-DEFAULT_NAME = "Zweibruecken Muellkalender"
+DEFAULT_NAME = "Waste Calendar"
 DEFAULT_SCAN_INTERVAL_HOURS = 12
 MIN_SCAN_INTERVAL_HOURS = 1
 DEFAULT_SCAN_INTERVAL = timedelta(hours=DEFAULT_SCAN_INTERVAL_HOURS)

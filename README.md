@@ -1,4 +1,4 @@
-# Zweibruecken Waste Calendar
+# Waste Calendar
 
 Home-Assistant-Custom-Integration fuer den UBZ-Abfallkalender in Zweibruecken.
 Die Integration liest eine ICS/iCal-URL und erstellt Sensoren fuer die naechsten
@@ -26,9 +26,9 @@ Abholtermine.
 3. Die GitHub-Repository-URL einfuegen:
    `https://github.com/Cyberhunter88/zweibruecken_waste`
 4. Als Kategorie `Integration` auswaehlen.
-5. `Zweibruecken Waste Calendar` installieren.
+5. `Waste Calendar` installieren.
 6. Home Assistant neu starten.
-7. Unter `Einstellungen > Geraete & Dienste > Integration hinzufuegen` nach `Zweibruecken Waste Calendar` suchen.
+7. Unter `Einstellungen > Geraete & Dienste > Integration hinzufuegen` nach `Waste Calendar` suchen.
 
 </details>
 
@@ -40,7 +40,7 @@ Abholtermine.
 1. Dieses Repository herunterladen.
 2. Den Ordner `custom_components/zweibruecken_waste` in den `custom_components`-Ordner der Home-Assistant-Installation kopieren.
 3. Home Assistant neu starten.
-4. Unter `Einstellungen > Geraete & Dienste > Integration hinzufuegen` nach `Zweibruecken Waste Calendar` suchen.
+4. Unter `Einstellungen > Geraete & Dienste > Integration hinzufuegen` nach `Waste Calendar` suchen.
 
 </details>
 
