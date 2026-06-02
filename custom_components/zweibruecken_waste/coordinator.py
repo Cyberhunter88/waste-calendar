@@ -19,6 +19,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL_HOURS,
     DOMAIN,
 )
+from .url import normalize_ics_url
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ class ZweibrueckenWasteCoordinator(DataUpdateCoordinator[dict[str, WasteCollecti
             update_interval=timedelta(hours=interval_hours),
             config_entry=entry,
         )
-        self._ics_url = entry.data[CONF_ICS_URL]
+        self._ics_url = normalize_ics_url(entry.data[CONF_ICS_URL])
 
     async def _async_update_data(self) -> dict[str, WasteCollection | None]:
         """Fetch data from the configured calendar."""

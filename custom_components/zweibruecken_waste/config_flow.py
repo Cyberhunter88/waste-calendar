@@ -21,6 +21,7 @@ from .const import (
     DOMAIN,
     MIN_SCAN_INTERVAL_HOURS,
 )
+from .url import normalize_ics_url
 
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
@@ -38,9 +39,10 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 async def async_validate_ics_url(hass: HomeAssistant, ics_url: str) -> None:
     """Validate that an ICS URL is reachable and parseable."""
 
+    normalized_url = normalize_ics_url(ics_url)
     session = async_get_clientsession(hass)
     try:
-        async with session.get(ics_url, timeout=30) as response:
+        async with session.get(normalized_url, timeout=30) as response:
             if response.status >= 400:
                 raise CannotConnect
             ics_text = await response.text()
@@ -68,6 +70,7 @@ class ZweibrueckenWasteConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         errors: dict[str, str] = {}
         if user_input is not None:
+            user_input[CONF_ICS_URL] = normalize_ics_url(user_input[CONF_ICS_URL])
             await self.async_set_unique_id(user_input[CONF_ICS_URL])
             self._abort_if_unique_id_configured()
             try:

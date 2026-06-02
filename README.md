@@ -54,8 +54,14 @@ Abholtermine.
 1. Den UBZ-Abfallkalender oeffnen:
    <https://www.ubzzw.com/servicebereiche/abfall/abfallkalender/>
 2. Strasse und Hausnummer auswaehlen.
-3. Die Termine als ICS/iCal-Kalender exportieren.
-4. Die ICS/iCal-URL in der Integration eintragen.
+3. Beim Ergebnis den Link `Diese Leerungstermine in einer ical-Kalenderdatei`
+   mit der rechten Maustaste anklicken.
+4. `Link-Adresse kopieren` waehlen. Nicht die heruntergeladene `.ics`-Datei
+   selbst auswaehlen.
+5. Die kopierte Adresse in der Integration eintragen.
+
+Hinweis: Manche Browser kopieren Kalenderlinks als `webcal://...`. Die
+Integration wandelt diese Adresse automatisch in `https://...` um.
 
 Optional kann das Aktualisierungsintervall angepasst werden. Standard ist alle
 12 Stunden.

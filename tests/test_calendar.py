@@ -14,6 +14,7 @@ from custom_components.zweibruecken_waste.const import (
     WASTE_RESIDUAL,
     WASTE_YELLOW,
 )
+from custom_components.zweibruecken_waste.url import normalize_ics_url
 
 
 SAMPLE_ICS = """BEGIN:VCALENDAR
@@ -75,3 +76,11 @@ def test_parse_ics_rejects_non_calendar_text() -> None:
         assert str(err) == "not_ics"
     else:
         raise AssertionError("Expected ValueError")
+
+
+def test_normalize_ics_url_accepts_webcal_links() -> None:
+    """webcal links copied from calendar apps should be fetchable via HTTPS."""
+
+    assert normalize_ics_url("webcal://example.com/calendar.ics") == (
+        "https://example.com/calendar.ics"
+    )
