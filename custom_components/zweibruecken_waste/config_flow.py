@@ -11,6 +11,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers import selector
 
 from .calendar import parse_ics_collections
 from .const import (
@@ -26,7 +27,9 @@ from .url import is_inline_ics, normalize_ics_source, source_unique_id
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_ICS_URL): str,
+        vol.Required(CONF_ICS_URL): selector.TextSelector(
+            selector.TextSelectorConfig(multiline=True)
+        ),
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
         vol.Optional(
             CONF_SCAN_INTERVAL_HOURS,

@@ -98,3 +98,13 @@ def test_inline_ics_sources_get_stable_ids_and_compact_display_names() -> None:
 
     assert source_display_name(inline_source) == "Inline ICS calendar"
     assert source_unique_id(inline_source).startswith("inline_ics_")
+
+
+def test_inline_ics_sources_keep_multiline_calendar_content() -> None:
+    """Pasted ICS file contents should survive trimming and remain parseable."""
+
+    inline_source = normalize_ics_source(f"\r\n{SAMPLE_ICS}\r\n")
+
+    assert inline_source.startswith("BEGIN:VCALENDAR")
+    assert inline_source.endswith("END:VCALENDAR")
+    assert parse_ics_collections(inline_source, today=date(2026, 6, 2))[WASTE_BIO]
