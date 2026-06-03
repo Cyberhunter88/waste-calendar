@@ -42,7 +42,10 @@ def format_collection_state(collection_date: date, today: date | None = None) ->
     """Return the sensor state shown in Home Assistant tiles."""
 
     today = today or date.today()
-    if (collection_date - today).days == 1:
+    days_until = (collection_date - today).days
+    if days_until == 0:
+        return "Heute"
+    if days_until == 1:
         return "Morgen"
     return format_collection_date(collection_date)
 

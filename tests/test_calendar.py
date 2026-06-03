@@ -101,10 +101,10 @@ def test_format_collection_state_shows_tomorrow_for_next_day() -> None:
     assert format_collection_state(date(2026, 6, 3), today=date(2026, 6, 2)) == "Morgen"
 
 
-def test_format_collection_state_keeps_date_for_today() -> None:
-    """Today's collection should keep the existing date display."""
+def test_format_collection_state_shows_today_for_collection_day() -> None:
+    """The visible sensor state should call out today's collection."""
 
-    assert format_collection_state(date(2026, 6, 2), today=date(2026, 6, 2)) == "02.06.2026"
+    assert format_collection_state(date(2026, 6, 2), today=date(2026, 6, 2)) == "Heute"
 
 
 def test_format_collection_state_keeps_date_for_later_collections() -> None:
