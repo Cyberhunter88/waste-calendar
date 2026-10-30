@@ -29,6 +29,6 @@ jobs:
           if [ "$HA_VERSION" = latest ]; then
             python -m pip install homeassistant
           else
-            python -m pip install "homeassistant==$HA_VERSION"
+            python -m pip install "homeassistant==$HA_VERSION" "josepy<2"
           fi
       - run: python -m pytest -q
