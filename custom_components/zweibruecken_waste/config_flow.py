@@ -60,7 +60,7 @@ async def async_validate_ics_url(hass: HomeAssistant, ics_url: str) -> None:
             ics_text = await response.text()
     except TimeoutError as err:
         raise CannotConnect from err
-    except ClientError as err:
+    except (ClientError, ValueError) as err:
         raise CannotConnect from err
 
     try:

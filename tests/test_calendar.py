@@ -72,6 +72,7 @@ def test_parse_ics_calendar_data_returns_all_upcoming_events() -> None:
     result = parse_ics_calendar_data(SAMPLE_ICS, today=date(2026, 6, 2))
 
     assert [event.collection_date for event in result.events] == [
+        date(2026, 6, 1),
         date(2026, 6, 3),
         date(2026, 6, 4),
         date(2026, 6, 5),
@@ -149,3 +150,57 @@ def test_inline_ics_sources_keep_multiline_calendar_content() -> None:
     assert inline_source.startswith("BEGIN:VCALENDAR")
     assert inline_source.endswith("END:VCALENDAR")
     assert parse_ics_collections(inline_source, today=date(2026, 6, 2))[WASTE_BIO]
+
+
+def test_day_change_recalculates_next_collection_without_fetching() -> None:
+    from custom_components.zweibruecken_waste.calendar import calendar_data_for_day
+
+    initial = parse_ics_calendar_data(SAMPLE_ICS, today=date(2026, 6, 1))
+    updated = calendar_data_for_day(initial.events, date(2026, 6, 2))
+    assert initial.next_by_type[WASTE_BIO].collection_date == date(2026, 6, 1)
+    assert updated.next_by_type[WASTE_BIO].collection_date == date(2026, 6, 3)
+    assert len(initial.events) == len(updated.events)
+
+
+def test_timezone_conversion_and_invalid_dates() -> None:
+    from zoneinfo import ZoneInfo
+
+    calendar = """BEGIN:VCALENDAR
+BEGIN:VEVENT
+SUMMARY:Bioabfall
+DTSTART:20260601T230000Z
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Papier
+DTSTART;VALUE=DATE:20261340
+END:VEVENT
+END:VCALENDAR"""
+    data = parse_ics_calendar_data(calendar, today=date(2026, 6, 1), local_timezone=ZoneInfo("Europe/Berlin"))
+    assert data.next_by_type[WASTE_BIO].collection_date == date(2026, 6, 2)
+    assert data.next_by_type[WASTE_PAPER] is None
+
+
+def test_rejects_truncated_calendar() -> None:
+    try:
+        parse_ics_calendar_data("BEGIN:VCALENDAR")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Expected ValueError")
+
+
+def test_duplicate_events_are_collapsed() -> None:
+    event = "BEGIN:VEVENT\nSUMMARY:Bioabfall\nDTSTART:20260601\nEND:VEVENT\n"
+    data = parse_ics_calendar_data("BEGIN:VCALENDAR\n" + event * 2 + "END:VCALENDAR", today=date(2026, 6, 1))
+    assert len(data.events) == 1
+
+
+def test_all_day_event_range_overlap() -> None:
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    from custom_components.zweibruecken_waste.calendar import _overlaps_range
+
+    zone = ZoneInfo("Europe/Berlin")
+    day = date(2026, 3, 29)
+    assert _overlaps_range(day, datetime(2026, 3, 29, 12, tzinfo=zone), datetime(2026, 3, 30, 0, tzinfo=zone))
+    assert not _overlaps_range(day, datetime(2026, 3, 30, 0, tzinfo=zone), datetime(2026, 3, 31, 0, tzinfo=zone))

@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone, tzinfo
+from hashlib import sha256
 import re
 import unicodedata
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .const import (
     DOMAIN,
@@ -50,13 +52,20 @@ def format_collection_state(collection_date: date, today: date | None = None) ->
     return format_collection_date(collection_date)
 
 
-def parse_ics_calendar_data(ics_text: str, today: date | None = None) -> WasteCalendarData:
-    """Return all upcoming collection events and the next collection per type."""
+def parse_ics_calendar_data(ics_text: str, today: date | None = None, local_timezone: tzinfo | None = None) -> WasteCalendarData:
+    """Return all collection events and the next collection per type."""
 
-    events = parse_ics_collection_events(ics_text, today=today)
+    events = parse_ics_collection_events(ics_text, today=today, local_timezone=local_timezone, include_past=True)
+    return calendar_data_for_day(events, today or date.today())
+
+
+def calendar_data_for_day(events: list[WasteCollection], today: date) -> WasteCalendarData:
+    """Recalculate the next collections without fetching the feed again."""
     next_by_type: dict[str, WasteCollection | None] = {waste_type: None for waste_type in WASTE_TYPES}
 
     for collection in events:
+        if collection.collection_date < today:
+            continue
         current = next_by_type[collection.waste_type]
         if current is None or collection.collection_date < current.collection_date:
             next_by_type[collection.waste_type] = collection
@@ -70,10 +79,13 @@ def parse_ics_collections(ics_text: str, today: date | None = None) -> dict[str,
     return parse_ics_calendar_data(ics_text, today=today).next_by_type
 
 
-def parse_ics_collection_events(ics_text: str, today: date | None = None) -> list[WasteCollection]:
+def parse_ics_collection_events(
+    ics_text: str, today: date | None = None, local_timezone: tzinfo | None = None,
+    include_past: bool = False,
+) -> list[WasteCollection]:
     """Return all upcoming collection events from raw ICS content."""
 
-    if not ics_text or "BEGIN:VCALENDAR" not in ics_text:
+    if not ics_text or "BEGIN:VCALENDAR" not in ics_text or "END:VCALENDAR" not in ics_text:
         raise ValueError("not_ics")
 
     today = today or date.today()
@@ -81,8 +93,8 @@ def parse_ics_collection_events(ics_text: str, today: date | None = None) -> lis
 
     for event in _iter_events(ics_text):
         summary = event.get("SUMMARY", "")
-        event_date = _event_date(event)
-        if event_date is None or event_date < today:
+        event_date = _event_date(event, local_timezone)
+        if event_date is None or (not include_past and event_date < today):
             continue
 
         waste_type = classify_waste_type(summary)
@@ -91,7 +103,7 @@ def parse_ics_collection_events(ics_text: str, today: date | None = None) -> lis
 
         collections.append(WasteCollection(event_date, summary, waste_type))
 
-    return sorted(collections, key=lambda collection: collection.collection_date)
+    return sorted(set(collections), key=lambda collection: (collection.collection_date, collection.waste_type, collection.summary))
 
 
 async def async_setup_entry(hass, entry, async_add_entities) -> None:
@@ -129,23 +141,30 @@ async def async_setup_entry(hass, entry, async_add_entities) -> None:
         async def async_get_events(self, hass, start_date, end_date):
             """Return waste collection events within a datetime range."""
 
-            start = start_date.date()
-            end = end_date.date()
             return [
                 _calendar_event(CalendarEvent, collection)
                 for collection in self.coordinator.data.events
-                if start <= collection.collection_date < end
+                if _overlaps_range(collection.collection_date, start_date, end_date)
             ]
 
     async_add_entities([ZweibrueckenWasteCalendar()])
 
 
 def _next_collection(events: list[WasteCollection]) -> WasteCollection | None:
-    today = date.today()
+    from homeassistant.util import dt as dt_util
+
+    today = dt_util.now().date()
     for collection in events:
         if collection.collection_date >= today:
             return collection
     return None
+
+
+def _overlaps_range(collection_date: date, start: datetime, end: datetime) -> bool:
+    """Return whether the all-day event overlaps the requested interval."""
+    event_start = datetime.combine(collection_date, time.min, start.tzinfo)
+    event_end = datetime.combine(collection_date + timedelta(days=1), time.min, start.tzinfo)
+    return event_start < end and event_end > start
 
 
 def _calendar_event(calendar_event_cls, collection: WasteCollection):
@@ -156,7 +175,7 @@ def _calendar_event(calendar_event_cls, collection: WasteCollection):
         end=end_date,
         summary=waste_type_name,
         description=collection.summary,
-        uid=f"{collection.waste_type}-{collection.collection_date.isoformat()}",
+        uid=f"{collection.waste_type}-{collection.collection_date.isoformat()}-{sha256(collection.summary.encode()).hexdigest()[:12]}",
     )
 
 
@@ -189,6 +208,10 @@ def _iter_events(ics_text: str) -> list[dict[str, str]]:
         raw_name, value = line.split(":", 1)
         name = raw_name.split(";", 1)[0].upper()
         current[name] = _unescape_ics_text(value.strip())
+        if name == "DTSTART" and ";" in raw_name:
+            for parameter in raw_name.split(";")[1:]:
+                if parameter.upper().startswith("TZID="):
+                    current["TZID"] = parameter[5:].strip('"')
 
     return events
 
@@ -203,25 +226,33 @@ def _unfold_ics_lines(ics_text: str) -> list[str]:
     return lines
 
 
-def _event_date(event: dict[str, str]) -> date | None:
+def _event_date(event: dict[str, str], local_timezone: tzinfo | None = None) -> date | None:
     value = event.get("DTSTART")
     if value is None:
         return None
-
-    if re.fullmatch(r"\d{8}", value):
-        return datetime.strptime(value, "%Y%m%d").date()
-
-    value = value.rstrip("Z")
-    for fmt in ("%Y%m%dT%H%M%S", "%Y%m%dT%H%M"):
-        try:
-            parsed = datetime.strptime(value, fmt)
-            if value.endswith("Z"):
-                parsed = parsed.replace(tzinfo=timezone.utc)
-            return parsed.date()
-        except ValueError:
-            continue
-
-    return None
+    try:
+        if re.fullmatch(r"\d{8}", value):
+            return datetime.strptime(value, "%Y%m%d").date()
+        is_utc = value.endswith("Z")
+        raw_value = value[:-1] if is_utc else value
+        parsed = None
+        for fmt in ("%Y%m%dT%H%M%S", "%Y%m%dT%H%M"):
+            try:
+                parsed = datetime.strptime(raw_value, fmt)
+                break
+            except ValueError:
+                pass
+        if parsed is None:
+            return None
+        if is_utc:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        elif event.get("TZID"):
+            parsed = parsed.replace(tzinfo=ZoneInfo(event["TZID"]))
+        if parsed.tzinfo and local_timezone:
+            parsed = parsed.astimezone(local_timezone)
+        return parsed.date()
+    except (ValueError, ZoneInfoNotFoundError):
+        return None
 
 
 def _normalize_text(value: str) -> str:

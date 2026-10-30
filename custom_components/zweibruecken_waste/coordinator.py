@@ -11,6 +11,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .calendar import WasteCalendarData, parse_ics_calendar_data
 from .const import (
@@ -41,7 +42,6 @@ class ZweibrueckenWasteCoordinator(DataUpdateCoordinator[WasteCalendarData]):
             _LOGGER,
             name=DOMAIN,
             update_interval=timedelta(hours=interval_hours),
-            config_entry=entry,
         )
         self._ics_source = normalize_ics_source(entry.data[CONF_ICS_URL])
 
@@ -50,7 +50,7 @@ class ZweibrueckenWasteCoordinator(DataUpdateCoordinator[WasteCalendarData]):
 
         if is_inline_ics(self._ics_source):
             try:
-                return parse_ics_calendar_data(self._ics_source)
+                return parse_ics_calendar_data(self._ics_source, today=dt_util.now().date(), local_timezone=dt_util.now().tzinfo)
             except ValueError as err:
                 raise UpdateFailed("ICS feed could not be parsed") from err
 
@@ -62,10 +62,10 @@ class ZweibrueckenWasteCoordinator(DataUpdateCoordinator[WasteCalendarData]):
                 ics_text = await response.text()
         except TimeoutError as err:
             raise UpdateFailed("Timed out while fetching the ICS feed") from err
-        except ClientError as err:
+        except (ClientError, ValueError) as err:
             raise UpdateFailed("Could not fetch the ICS feed") from err
 
         try:
-            return parse_ics_calendar_data(ics_text)
+            return parse_ics_calendar_data(ics_text, today=dt_util.now().date(), local_timezone=dt_util.now().tzinfo)
         except ValueError as err:
             raise UpdateFailed("ICS feed could not be parsed") from err

@@ -72,7 +72,9 @@ Falls sich der Link nicht kopieren laesst:
 4. Diesen Inhalt in das Feld `ICS/iCal-URL oder Dateiinhalt` einfuegen.
 
 Optional kann das Aktualisierungsintervall angepasst werden. Standard ist alle
-12 Stunden.
+12 Stunden. Die Anzeige wird zum Tageswechsel in der Home-Assistant-Zeitzone
+aktualisiert, auch wenn der naechste Abruf erst spaeter erfolgt. Bei eingefuegtem
+Dateiinhalt muessen neue Termine durch erneutes Einrichten uebernommen werden.
 
 Optional kann beim Einrichten oder spaeter in den Integrationsoptionen ein
 Home-Assistant-Kalender aktiviert werden. Dieser Kalender zeigt die passenden
@@ -152,8 +154,20 @@ Falls UBZ die Bezeichnungen im Kalender aendert, koennen neue Suchbegriffe in
 ## Entwicklung
 
 ```powershell
-pytest
+python -m venv .venv
+.venv/bin/python -m pip install pytest
+.venv/bin/python -m pytest -q
 ```
+
+Die CI prueft zusaetzlich die Modulimporte mit Home Assistant 2024.6 und der
+aktuellen Version. Fuer die Home-Assistant-Kompatibilitaetspruefung muss das
+jeweilige `homeassistant`-Paket installiert sein.
+
+## Version 0.2.0
+
+- Zuverlaessige Aktualisierung der Sensoren zum Tageswechsel.
+- Verbesserte Verarbeitung von Kalenderdaten und Kalender-Zeitbereichen.
+- Korrektes Neuladen nach Optionsaenderungen und Kompatibilitaetspruefungen.
 
 ## Repository-Struktur
 

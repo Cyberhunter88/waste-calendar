@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import date
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
@@ -10,6 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import (
     ATTR_DAYS_UNTIL,
@@ -76,7 +76,7 @@ class ZweibrueckenWasteSensor(CoordinatorEntity[ZweibrueckenWasteCoordinator], S
         collection = self.coordinator.data.next_by_type.get(self._waste_type)
         if collection is None:
             return None
-        return format_collection_state(collection.collection_date)
+        return format_collection_state(collection.collection_date, today=dt_util.now().date())
 
     @property
     def available(self) -> bool:
@@ -105,7 +105,7 @@ class ZweibrueckenWasteSensor(CoordinatorEntity[ZweibrueckenWasteCoordinator], S
             )
             return attrs
 
-        today = date.today()
+        today = dt_util.now().date()
         days_until = (collection.collection_date - today).days
         attrs.update(
             {
